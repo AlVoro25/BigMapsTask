@@ -28,13 +28,14 @@ class Example(QWidget):
         self.image = QLabel(self)
         self.image.move(0, 20)
         self.image.resize(600, 430)
+        self.spn = 0.5
+        self.coords = ""
 
-    def setImage(self, coords_text):
+    def setImage(self, coords_text, spn):
         params = {
             "ll": coords_text,
             "l": "map",
-            #"spn": spn_value(str(to_check), str(point2))
-            "spn": "0.5,0.5"
+            "spn": f"{spn},{spn}"
         }
         map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=params)
@@ -50,29 +51,23 @@ class Example(QWidget):
         self.pixmap = QPixmap(self.map_file)
         self.image.setPixmap(self.pixmap)
 
-    """
     def keyPressEvent(self, e):
         if e.key() == 16777235:
-            if self.ind == 2:
-                self.ind = 0
-            else:
-                self.ind += 1
+            if self.spn > 0.0001:
+                self.spn -= 0.01
         elif e.key() == 16777237:
-            if self.ind == 0:
-                self.ind = 2
-            else:
-                self.ind -= 1
-        self.getImage(self.ind)
-        self.pixmap = QPixmap(self.map_file)
-        self.image.setPixmap(self.pixmap)
-    """
+            if self.spn < 2:
+                self.spn += 0.1
+        if self.coords:
+            self.setImage(self.coords, round(float(self.spn), 2))
 
     def closeEvent(self, event):
         os.remove(self.map_file)
 
     def to_get_coords(self):
         text = self.coords_input.text()
-        self.setImage(text)
+        self.setImage(text, self.spn)
+        self.coords = text
 
 
 if __name__ == '__main__':
