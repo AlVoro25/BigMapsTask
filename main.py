@@ -20,6 +20,10 @@ class Example(QWidget):
         self.coords_input = QLineEdit(self)
         self.coords_input.move(0, 0)
         self.coords_input.resize(510, 20)
+        self.adress_text = QLineEdit(self)
+        self.adress_text.move(0, 460)
+        self.adress_text.resize(510, 20)
+        self.adress_text.setReadOnly(True)
         self.coords_input.setText("48.291432,42.065616")
         self.get_coords = QPushButton(self)
         self.get_coords.setText("Получить")
@@ -73,6 +77,7 @@ class Example(QWidget):
         self.coords = ""
         self.map_type = "map"
         self.pt_coordinates = ""
+        self.adress = ""
 
     def setImage(self, coords_text, spn, map_type):
         params = {
@@ -88,12 +93,14 @@ class Example(QWidget):
             file.write(response.content)
         self.pixmap = QPixmap(self.map_file)
         self.image.setPixmap(self.pixmap)
+        self.adress_text.setText(self.adress)
     
     def to_get_coords(self):
         text = self.coords_input.text()
         self.coords = text
         self.pt_coordinates = text
         self.setImage(text, self.spn, self.map_type)
+        self.search_adress(self.coords)
 
     def move_map(self):
         if self.coords != "":
@@ -117,7 +124,21 @@ class Example(QWidget):
                 self.map_type = "skl"
             elif self.sender().text() == "Сбросить п.р":
                 self.pt_coordinates = ""
+                self.adress = ""
             self.setImage(self.coords, round(float(self.spn), 2), self.map_type)
+
+    def search_adress(self, coordinates):
+        params = {
+            "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+            "geocode": coordinates,
+            "format": "json"
+        }
+        map_api_server = "https://geocode-maps.yandex.ru/1.x/"
+        response = requests.get(map_api_server, params=params)
+        json_response = response.json()
+        self.adress = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"][
+            "metaDataProperty"]["GeocoderMetaData"]["AddressDetails"]["Country"]["AddressLine"]
+        self.adress_text.setText(self.adress)
 
     def closeEvent(self, event):
         if self.coords != "":
