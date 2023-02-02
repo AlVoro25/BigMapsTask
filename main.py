@@ -71,7 +71,8 @@ class Example(QWidget):
         params = {
             "ll": coords_text,
             "l": map_type,
-            "spn": f"{spn},{spn}"
+            "spn": f"{spn},{spn}",
+            "pt": coords_text
         }
         map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=params)
