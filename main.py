@@ -20,6 +20,7 @@ class Example(QWidget):
         self.coords_input = QLineEdit(self)
         self.coords_input.move(0, 0)
         self.coords_input.resize(510, 20)
+        self.coords_input.setText("48.291432,42.065616")
         self.get_coords = QPushButton(self)
         self.get_coords.setText("Получить")
         self.get_coords.move(510, 0)
@@ -66,13 +67,14 @@ class Example(QWidget):
         self.spn = 0.1
         self.coords = ""
         self.map_type = "map"
+        self.pt_coordinates = ""
 
     def setImage(self, coords_text, spn, map_type):
         params = {
             "ll": coords_text,
             "l": map_type,
             "spn": f"{spn},{spn}",
-            "pt": coords_text
+            "pt": self.pt_coordinates
         }
         map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=params)
@@ -84,8 +86,9 @@ class Example(QWidget):
     
     def to_get_coords(self):
         text = self.coords_input.text()
-        self.setImage(text, self.spn, self.map_type)
         self.coords = text
+        self.pt_coordinates = text
+        self.setImage(text, self.spn, self.map_type)
 
     def move_map(self):
         if self.coords != "":
