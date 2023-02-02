@@ -45,16 +45,32 @@ class Example(QWidget):
         self.key_right.move(310, 495)
         self.key_right.clicked.connect(self.move_map)
         self.key_right.resize(30, 30)
+        self.key_map = QPushButton(self)
+        self.key_map.setText("map")
+        self.key_map.move(350, 495)
+        self.key_map.clicked.connect(self.move_map)
+        self.key_map.resize(35, 30)
+        self.key_sat = QPushButton(self)
+        self.key_sat.setText("sat")
+        self.key_sat.move(385, 495)
+        self.key_sat.clicked.connect(self.move_map)
+        self.key_sat.resize(35, 30)
+        self.key_skl = QPushButton(self)
+        self.key_skl.setText("skl")
+        self.key_skl.move(420, 495)
+        self.key_skl.clicked.connect(self.move_map)
+        self.key_skl.resize(35, 30)
         self.image = QLabel(self)
         self.image.move(0, 20)
         self.image.resize(600, 430)
         self.spn = 0.1
         self.coords = ""
+        self.map_type = "map"
 
-    def setImage(self, coords_text, spn):
+    def setImage(self, coords_text, spn, map_type):
         params = {
             "ll": coords_text,
-            "l": "map",
+            "l": map_type,
             "spn": f"{spn},{spn}"
         }
         map_api_server = "http://static-maps.yandex.ru/1.x/"
@@ -67,7 +83,7 @@ class Example(QWidget):
     
     def to_get_coords(self):
         text = self.coords_input.text()
-        self.setImage(text, self.spn)
+        self.setImage(text, self.spn, self.map_type)
         self.coords = text
 
     def move_map(self):
@@ -84,7 +100,13 @@ class Example(QWidget):
             elif self.sender().text() == "→":
                 coordinate = float(self.coords.split(",")[0]) + 0.2
                 self.coords = f"{coordinate},{self.coords.split(',')[1]}"
-            self.setImage(self.coords, round(float(self.spn), 2))
+            elif self.sender().text() == "map":
+                self.map_type = "map"
+            elif self.sender().text() == "sat":
+                self.map_type = "sat"
+            elif self.sender().text() == "skl":
+                self.map_type = "skl"
+            self.setImage(self.coords, round(float(self.spn), 2), self.map_type)
 
     def closeEvent(self, event):
         if self.coords != "":
