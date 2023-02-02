@@ -61,6 +61,11 @@ class Example(QWidget):
         self.key_skl.move(420, 495)
         self.key_skl.clicked.connect(self.move_map)
         self.key_skl.resize(35, 30)
+        self.reset_sr = QPushButton(self)
+        self.reset_sr.setText("Сбросить п.р")
+        self.reset_sr.move(455, 495)
+        self.reset_sr.clicked.connect(self.move_map)
+        self.reset_sr.resize(80, 30)
         self.image = QLabel(self)
         self.image.move(0, 20)
         self.image.resize(600, 430)
@@ -110,6 +115,8 @@ class Example(QWidget):
                 self.map_type = "sat"
             elif self.sender().text() == "skl":
                 self.map_type = "skl"
+            elif self.sender().text() == "Сбросить п.р":
+                self.pt_coordinates = ""
             self.setImage(self.coords, round(float(self.spn), 2), self.map_type)
 
     def closeEvent(self, event):
