@@ -70,6 +70,11 @@ class Example(QWidget):
         self.reset_sr.move(455, 495)
         self.reset_sr.clicked.connect(self.move_map)
         self.reset_sr.resize(80, 30)
+        self.add_post = QPushButton(self)
+        self.add_post.setText("Добавить п.и.")
+        self.add_post.move(160, 495)
+        self.add_post.clicked.connect(self.move_map)
+        self.add_post.resize(90, 30)
         self.image = QLabel(self)
         self.image.move(0, 20)
         self.image.resize(600, 430)
@@ -78,6 +83,7 @@ class Example(QWidget):
         self.map_type = "map"
         self.pt_coordinates = ""
         self.adress = ""
+        self.is_post = False
 
     def setImage(self, coords_text, spn, map_type):
         params = {
@@ -93,6 +99,7 @@ class Example(QWidget):
             file.write(response.content)
         self.pixmap = QPixmap(self.map_file)
         self.image.setPixmap(self.pixmap)
+        self.search_adress(coords_text)
         self.adress_text.setText(self.adress)
     
     def to_get_coords(self):
@@ -125,6 +132,8 @@ class Example(QWidget):
             elif self.sender().text() == "Сбросить п.р":
                 self.pt_coordinates = ""
                 self.adress = ""
+            elif self.sender().text() == "Добавить п.и.":
+                self.is_post = not self.is_post
             self.setImage(self.coords, round(float(self.spn), 2), self.map_type)
 
     def search_adress(self, coordinates):
@@ -136,8 +145,14 @@ class Example(QWidget):
         map_api_server = "https://geocode-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=params)
         json_response = response.json()
-        self.adress = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"][
-            "metaDataProperty"]["GeocoderMetaData"]["AddressDetails"]["Country"]["AddressLine"]
+        if not self.is_post:
+            self.adress = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"][
+                "metaDataProperty"]["GeocoderMetaData"]["AddressDetails"]["Country"]["AddressLine"]
+        else:
+            resp = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"][
+                "metaDataProperty"]["GeocoderMetaData"]["AddressDetails"]["Country"]
+            self.adress = resp["AddressLine"] + ", " + resp["AdministrativeArea"]["SubAdministrativeArea"]["Locality"]["Thoroughfare"]["Premise"][
+                "PostalCode"]["PostalCodeNumber"]
         self.adress_text.setText(self.adress)
 
     def closeEvent(self, event):
